@@ -28,6 +28,8 @@
         expect(_.identity(false)).to.be.false;
         expect(_.identity(uniqueObject)).to.equal(uniqueObject);
       });
+
+      checkForNativeMethods(_.identity);
     });
 
     describe('first', function() {
