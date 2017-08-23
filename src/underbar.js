@@ -312,6 +312,7 @@
   // _.memoize should return a function that, when called, will check if it has
   // already computed the result for the given argument and return that value
   // instead if possible.
+
   _.memoize = function(func) {
     var result = {};
 
@@ -369,10 +370,16 @@
    * Note: This is the end of the pre-course curriculum. Feel free to continue,
    * but nothing beyond here is required.
    */
-
   // Calls the method named by functionOrKey on each value in the list.
   // Note: You will need to learn a bit about .apply to complete this.
   _.invoke = function(collection, functionOrKey, args) {
+    return _.map (collection, function(item) {
+      if (typeof functionOrKey === 'function') {
+        return functionOrKey.apply(item, args);
+      } else {
+        return item[functionOrKey](args);
+      }
+    });
   };
 
   // Sort the object's values by a criterion produced by an iterator.
@@ -380,7 +387,28 @@
   // of that string. For example, _.sortBy(people, 'name') should sort
   // an array of people by their name.
   _.sortBy = function(collection, iterator) {
+      return collection.sort (function (element1, element2) {
+        if (typeof iterator === 'function') {
+          var processedElement1 = iterator(element1);
+          var processedElement2 = iterator(element2);
+        } else {
+          var processedElement1 = element1[iterator];
+          var processedElement2 = element2[iterator];
+        }
+      
+        if (typeof processedElement1 === 'number') {
+          return processedElement1 - processedElement2;
+        } else if (processedElement1 === undefined) {
+          return 1;
+        } else if (processedElement2 === undefined) {
+          return -1;
+        } else {
+          return processedElement1.length - processedElement2.length;
+        }
+      });
   };
+
+
 
   // Zip together two or more arrays with elements of the same index
   // going together.
@@ -388,6 +416,25 @@
   // Example:
   // _.zip(['a','b','c','d'], [1,2,3]) returns [['a',1], ['b',2], ['c',3], ['d',undefined]]
   _.zip = function() {
+    var argumentsArray = Array.prototype.slice.call(arguments)
+    var result = [];
+    var longestArray = _.reduce(argumentsArray, function(accumulator, currentArray) {
+      if (currentArray.length > accumulator.length) {
+        return currentArray;
+      } else {
+        return accumulator;
+      }
+    });
+    
+    for (var i = 0; i < longestArray.length; i++) {
+      var innerResult = [];
+      for (var j = 0; j < argumentsArray.length; j++) {
+        innerResult.push(argumentsArray[j][i]);
+      }
+      result.push(innerResult);
+    }
+    
+    return result;
   };
 
   // Takes a multidimensional array and converts it to a one-dimensional array.
@@ -395,6 +442,15 @@
   //
   // Hint: Use Array.isArray to check if something is an array
   _.flatten = function(nestedArray, result) {
+    var resultArray = result || [];
+    for (var i = 0; i < nestedArray.length; i++) {
+      if (Array.isArray(nestedArray[i])) {
+        _.flatten(nestedArray[i], resultArray);
+      } else {
+        resultArray.push(nestedArray[i]);
+      }
+    }  
+    return resultArray;
   };
 
   // Takes an arbitrary number of arrays and produces an array that contains
